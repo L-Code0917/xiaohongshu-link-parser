@@ -212,12 +212,11 @@ function pollMessages(){
   });
 }
 
-var rocheStorage = null; var _roche = null;
-var _panelCreated = false;
+var rocheStorage = null;
+var _roche = null;
 
 function createPanel(container, roche){
   rocheStorage = roche.storage;
-  _panelCreated = true;
 
   // Check initial state
   rocheStorage.get(STORE_KEY_ON).then(function(isOn){
