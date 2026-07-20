@@ -59,3 +59,63 @@ function start(ep,k){
 }
 function stop(){if(O){O.disconnect();O=null}R=false}
 window.RochePlugin.register({id:"xhs-live-parser",name:"XHS Link Parser",version:"2.2.0",apps:[{id:"xhs-live-parser-main",name:"\u5b9e\u65f6\u89e3\u6790",icon:"link",async mount(c,r){var k=(await r.storage.get(K))||"";var ep=(await r.storage.get(E))||"fetch_video_detail";c.innerHTML="<div style='padding:16px;display:flex;flex-direction:column;gap:12px;font-size:14px;color:#e0e0e0'><div style='font-size:18px;font-weight:600'>XHS \u5b9e\u65f6\u89e3\u6790</div><div id='xss' style='display:flex;align-items:center;gap:8px;padding:12px;border-radius:8px;background:#222'><span style='width:10px;height:10px;border-radius:50%;background:"+(R?"#4ecca3":"#555")+";display:inline-block'></span>"+(R?"\u76d1\u63a7\u4e2d":"\u672a\u542f\u52a8")+"</div><label>API Key</label><input id='xk' type='password' value='"+k+"' style='padding:10px;border:1px solid #333;border-radius:8px;background:#222;color:#e0e0e0;width:100%'><label>Endpoint</label><input id='xe' value='"+ep+"' style='padding:10px;border:1px solid #333;border-radius:8px;background:#222;color:#e0e0e0;width:100%'><div style='display:flex;gap:8px'><button id='xsv' style='flex:1;padding:10px;background:#ff2442;color:#fff;border:none;border-radius:8px;cursor:pointer'>\u4fdd\u5b58\u5e76\u542f\u52a8</button><button id='xsp' style='flex:1;padding:10px;background:#333;color:#e0e0e0;border:1px solid #444;border-radius:8px;cursor:pointer'>\u505c\u6b62\u76d1\u63a7</button></div></div>";document.getElementById("xsv").onclick=async function(){var k2=document.getElementById("xk").value.trim();var e2=document.getElementById("xe").value.trim()||"fetch_video_detail";if(!k2){r.ui.toast("\u8bf7\u586b\u5199 API Key");return}await r.storage.set(K,k2);await r.storage.set(E,e2);ka();start(e2,k2);document.getElementById("xss").innerHTML="<span style='width:10px;height:10px;border-radius:50%;background:#4ecca3;display:inline-block'></span>\u76d1\u63a7\u4e2d"};document.getElementById("xsp").onclick=function(){stop();if(A){try{A.close()}catch(e){}A=null}r.ui.toast("\u5df2\u505c\u6b62");document.getElementById("xss").innerHTML="<span style='width:10px;height:10px;border-radius:50%;background:#555;display:inline-block'></span>\u5df2\u505c\u6b62"};if(k){setTimeout(function(){ka();start(ep,k)},1000)}},async unmount(c){c.replaceChildren()}}]})})()
+(function(){
+"use strict";
+var K="xhs_key",E="xhs_ep",R=false,O=null,A=null;
+var RU=new RegExp("https?://[^\\s]*(?:xiaohongshu\\.com|xhslink\\.com)[^\\s]*","gi");
+var RN=new RegExp("xiaohongshu\\.com/(?:explore|discovery/item)/([a-f0-9]+)","i");
+function ka(){try{var c=new(window.AudioContext||window.webkitAudioContext)();var b=c.createBuffer(1,c.sampleRate,c.sampleRate);var s=c.createBufferSource();s.buffer=b;s.loop=true;s.connect(c.destination);s.start();A=c;setInterval(function(){if(c.state==="suspended")c.resume()},3e4)}catch(e){}}
+function ni(u){var m=u.match(RN);return m?m[1]:null}
+function bb(n){var e=n.nodeType===1?n:n.parentElement;while(e&&e!==document.body){if(e.matches&&(e.matches("[class*=chat-bubble]")||e.matches("[class*=message]")))return e;e=e.parentElement}return null}
+function ap(ep,k,ni){return fetch("https://api.getoneapi.com/api/xiaohongshu/"+ep,{method:"POST",headers:{"Authorization":"Bearer "+k,"Content-Type":"application/json"},body:JSON.stringify({noteId:ni})}).then(function(r){return r.json()}).catch(function(){return null})}
+function sc(d,b){
+  var dv=document.createElement("div");
+  var s=dv.style;
+  s.border="1px solid #333";s.borderRadius="12px";s.overflow="hidden";
+  s.margin="8px 0";s.background="#1a1a2e";s.color="#e0e0e0";s.fontSize="13px";
+  var h=document.createElement("div");
+  h.style.cssText="padding:10px 12px;border-bottom:1px solid #333;font-weight:600;color:#ff2442;font-size:12px;display:flex;align-items:center;gap:6px";
+  var mk=document.createElement("span");
+  mk.style.cssText="background:#ff2442;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px";
+  mk.textContent="RED";
+  h.appendChild(mk);
+  h.appendChild(document.createTextNode(" \u5c0f\u7ea2\u4e66"));
+  dv.appendChild(h);
+  var bd=document.createElement("div");
+  bd.style.padding="12px";
+  var tl=document.createElement("b");tl.textContent=d.title||"\u5c0f\u7ea2\u4e66\u5e16\u5b50";bd.appendChild(tl);
+  if(d.author||d.user_name){var au=document.createElement("div");au.style.cssText="font-size:12px;color:#999;margin-top:4px";au.textContent=d.author||d.user_name||"";bd.appendChild(au)}
+  if(d.desc||d.description||d.content){var de=document.createElement("div");de.style.cssText="font-size:12px;color:#888;margin-top:4px";de.textContent=d.desc||d.description||d.content||"";bd.appendChild(de)}
+  var imgs=d.images||d.image_list||d.pics||[];
+  if(imgs.length>0){
+    var src=typeof imgs[0]==="string"?imgs[0]:(imgs[0].url||"");
+    if(src){var im=document.createElement("img");im.src=src;im.style.cssText="max-width:100%;border-radius:8px;margin-top:8px";bd.appendChild(im)}
+  }
+  dv.appendChild(bd);
+  b.parentNode.insertBefore(dv,b.nextSibling);
+}
+function st(ep,k){
+  if(O)O.disconnect();R=true;
+  O=new MutationObserver(function(m){
+    m.forEach(function(mu){
+      if(mu.type!=="childList"||!mu.addedNodes.length)return;
+      for(var i=0;i<mu.addedNodes.length;i++){
+        var n=mu.addedNodes[i];if(n.nodeType!==1&&n.nodeType!==3)continue;
+        var tx=n.textContent||"";var ls=tx.match(RU);if(!ls||!ls.length)continue;
+        var b=bb(n);if(!b||b.dataset.x)continue;b.dataset.x="1";
+        var id=ni(ls[0]);if(!id)continue;
+        ap(ep,k,id).then(function(d){if(d&&d.code===200&&d.data)sc(d.data,b)});
+      }
+    })
+  });
+  O.observe(document.body,{childList:true,subtree:true});
+}
+function sp(){if(O){O.disconnect();O=null}R=false}
+window.RochePlugin.register({id:"xhs-live-parser",name:"XHS Link Parser",version:"2.2.0",apps:[{id:"xhs-live-parser-main",name:"\u5b9e\u65f6\u89e3\u6790",icon:"link",async mount(c,r){
+  var k=await r.storage.get(K)||"";var ep=await r.storage.get(E)||"fetch_video_detail";
+  c.innerHTML="<div style='padding:16px;display:flex;flex-direction:column;gap:12px;font-size:14px;color:var(--c-text,#e0e0e0)'><button id='xcb' style='padding:8px 16px;background:var(--c-surface,#333);color:var(--c-text,#e0e0e0);border:1px solid var(--c-border,#444);border-radius:8px;cursor:pointer;font-size:13px;width:fit-content'>&#x2190; \u8fd4\u56de</button><div style='font-size:18px;font-weight:600'>XHS \u5b9e\u65f6\u89e3\u6790</div><div id='xss' style='display:flex;align-items:center;gap:8px;padding:12px;border-radius:8px;background:var(--c-surface,#222)'><span style='width:10px;height:10px;border-radius:50%;background:"+(R?"#4ecca3":"#555")+";flex-shrink:0'></span><span>"+(R?"\u76d1\u63a7\u4e2d":"\u672a\u542f\u52a8")+"</span></div><label style='font-size:13px;color:var(--c-text-sub,#999)'>API Key</label><input id='xk' type='password' value='"+k+"' style='padding:10px;border:1px solid var(--c-border,#333);border-radius:8px;background:var(--c-surface,#222);color:var(--c-text,#e0e0e0);outline:none;width:100%;font-size:14px'><label style='font-size:13px;color:var(--c-text-sub,#999)'>Endpoint</label><input id='xe' value='"+ep+"' style='padding:10px;border:1px solid var(--c-border,#333);border-radius:8px;background:var(--c-surface,#222);color:var(--c-text,#e0e0e0);outline:none;width:100%;font-size:14px'><div style='display:flex;gap:8px'><button id='xsv' style='flex:1;padding:10px;background:var(--c-primary,#ff2442);color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer'>\u4fdd\u5b58\u5e76\u542f\u52a8</button><button id='xsp' style='flex:1;padding:10px;background:var(--c-surface,#333);color:var(--c-text,#e0e0e0);border:1px solid var(--c-border,#444);border-radius:8px;font-size:14px;cursor:pointer'>\u505c\u6b62\u76d1\u63a7</button></div></div>";
+  document.getElementById("xcb").onclick=function(){r.ui.closeApp()};
+  document.getElementById("xsv").onclick=async function(){var k2=document.getElementById("xk").value.trim();var e2=document.getElementById("xe").value.trim()||"fetch_video_detail";if(!k2){r.ui.toast("\u8bf7\u586b\u5199 API Key");return}await r.storage.set(K,k2);await r.storage.set(E,e2);ka();st(e2,k2);document.getElementById("xss").innerHTML="<span style='width:10px;height:10px;border-radius:50%;background:#4ecca3;flex-shrink:0'></span><span>\u76d1\u63a7\u4e2d</span>";r.ui.toast("\u2713 \u5df2\u542f\u52a8")};
+  document.getElementById("xsp").onclick=function(){sp();if(A){try{A.close()}catch(e){}A=null}r.ui.toast("\u5df2\u505c\u6b62");document.getElementById("xss").innerHTML="<span style='width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0'></span><span>\u5df2\u505c\u6b62</span>"};
+  if(k){setTimeout(function(){ka();st(ep,k)},1000)}
+},async unmount(c){c.replaceChildren()}}]})})()
