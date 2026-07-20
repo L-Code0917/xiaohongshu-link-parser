@@ -1,0 +1,14 @@
+{
+  "id": "xiaohongshu-link-parser",
+  "name": "小红书链接解析器",
+  "version": "1.0.0",
+  "description": "粘贴小红书分享链接，自动解析帖子内容、图片和热评，AI 角色可以直接读取",
+  "author": "",
+  "entry": "https://raw.githubusercontent.com/你的用户名/xiaohongshu-link-parser/main/plugin.js",
+  "hash": "",
+  "permissions": [
+    "ai:chat",
+    "storage",
+    "ui"
+  ]
+}
