@@ -2,7 +2,7 @@
 
 var CF_WORKER = 'https://xhs-proxy.luyi90720.workers.dev';
 var DB_NAME = 'Roche_db';
-var POLL_MS = 2000;
+var POLL_MS = 5000;
 var STORE_KEY_CF = 'xhs_own_cf';
 var STORE_KEY_ON = 'xhs_listen';
 var _db = null;
@@ -169,10 +169,10 @@ function injectTextMessage(originalMsg, text){
 function pollMessages(){
   rocheStorage.get(STORE_KEY_ON).then(function(isOn){
     if(!isOn) return;
-    getAllRecords('conversations').then(function(convs){
-      convs.forEach(function(conv){
-        var convId = conv.id;
-        getAllRecords('messages').then(function(allMsgs){
+    getAllRecords('messages').then(function(allMsgs){
+      getAllRecords('conversations').then(function(convs){
+        convs.forEach(function(conv){
+          var convId = conv.id;
           var convMsgs = allMsgs.filter(function(m){ return m.conversation_id === convId; });
           var maxTs = 0;
           convMsgs.forEach(function(m){ if(m.timestamp > maxTs) maxTs = m.timestamp; });
