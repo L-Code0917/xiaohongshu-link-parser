@@ -173,11 +173,14 @@ function pollMessages(){
     getAllRecords('conversations').then(function(convs){
       convs.forEach(function(conv){
         var convId = conv.id;
-        if(!_lastMsgIds[convId]) _lastMsgIds[convId] = 0;
+        getAllRecords('messages').then(function(allMsgs){
+          var convMsgs = allMsgs.filter(function(m){ return m.conversation_id === convId; });
+          var maxTs = 0;
+          convMsgs.forEach(function(m){ if(m.timestamp > maxTs) maxTs = m.timestamp; });
+          if(!_lastMsgIds[convId]) _lastMsgIds[convId] = maxTs;
 
-        getAllRecords('messages').then(function(msgs){
-          var filtered = msgs.filter(function(m){
-            return m.conversation_id === convId && m.timestamp > _lastMsgIds[convId];
+          var filtered = convMsgs.filter(function(m){
+            return m.timestamp > _lastMsgIds[convId];
           });
           if(filtered.length === 0) return;
 
@@ -289,4 +292,5 @@ window.RochePlugin.register({
 });
 
 })();
+
 
