@@ -79,13 +79,13 @@ function getProxies(cfUrl){
   var builtin = CF_WORKER;
   if(isApk){
     list.push({name:'corsproxy', fn:function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }});
-    list.push({name:'CF内置', fn:function(u){ return builtin + '?url=' + encodeURIComponent(u); }});
+    list.push({name:'CF', fn:function(u){ return builtin + '?url=' + encodeURIComponent(u); }});
   } else {
-    list.push({name:'CF内置', fn:function(u){ return builtin + '?url=' + encodeURIComponent(u); }});
+    list.push({name:'CF', fn:function(u){ return builtin + '?url=' + encodeURIComponent(u); }});
     list.push({name:'corsproxy', fn:function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); }});
   }
   if(cfUrl){
-    list.push({name:'CF自定义', fn:function(u){ return cfUrl.replace(/\/$/,'') + '?url=' + encodeURIComponent(u); }});
+    list.push({name:'CF2', fn:function(u){ return cfUrl.replace(/\/$/,'') + '?url=' + encodeURIComponent(u); }});
   }
   return list;
 }
@@ -136,25 +136,24 @@ function extractTags(note){
 
 function formatCard(note, comments, xhsUrl){
   var title = note.title || '小红书笔记';
-  var author = (note.user && (note.user.nick_name || note.user.nickname)) || '未知';
+  var author = (note.user && (note.user.nick_name || note.user.nickname)) || '';
   var desc = note.desc || '';
   var tags = extractTags(note);
-  var tagStr = tags.join('，');
-
-  // Format comments
+  var tagStr = tags.join('\u3001');
   var cmtText = '';
   if(comments && comments.comments && comments.comments.length > 0){
-    cmtText = '\n热门评论：\n';
+    cmtText = '\n\u70ed\u95e8\u8bc4\u8bba\uff1a\n';
     var max = Math.min(comments.comments.length, 5);
     for(var i=0;i<max;i++){
       var c = comments.comments[i];
-      var un = (c.user && (c.user.nickname || c.user.nick_name)) || '用户';
+      var un = (c.user && (c.user.nickname || c.user.nick_name)) || '\u7528\u6237';
       var ct = c.content || '';
-      cmtText += un + '：' + ct + '\n';
+      cmtText += un + '\uff1a' + ct + '\n';
     }
   }
-
-  return '分享了一个小红书笔记：\n#' + title + '\n' + desc + '\n标签：' + tagStr + '\n' + cmtText;
+  var result = '\u5206\u4eab\u4e86\u4e00\u4e2a\u5c0f\u7ea2\u4e66\u7b14\u8bb0\uff1a\n#' + title + '\n' + desc + '\n\u6807\u7b7e\uff1a' + tagStr + '\n' + cmtText;
+  if(author) result = '\u4f5c\u8005\uff1a' + author + '\n' + result;
+  return result;
 }
 
 function injectTextMessage(originalMsg, text){
@@ -178,25 +177,19 @@ function pollMessages(){
           var maxTs = 0;
           convMsgs.forEach(function(m){ if(m.timestamp > maxTs) maxTs = m.timestamp; });
           if(!_lastMsgIds[convId]) _lastMsgIds[convId] = maxTs;
-
           var filtered = convMsgs.filter(function(m){
             return m.timestamp > _lastMsgIds[convId];
           });
           if(filtered.length === 0) return;
-
-          // Update last timestamp
-          var maxTs = 0;
-          filtered.forEach(function(m){ if(m.timestamp > maxTs) maxTs = m.timestamp; });
-          _lastMsgIds[convId] = maxTs;
-
+          var newMax = 0;
+          filtered.forEach(function(m){ if(m.timestamp > newMax) newMax = m.timestamp; });
+          _lastMsgIds[convId] = newMax;
           filtered.forEach(function(msg){
             var text = msg.text || '';
             var match = text.match(/https?:\/\/(?:[a-z0-9\-.]+)?(?:xiaohongshu|xhslink)[a-z0-9\-.]*(?:\/[^\s<>"']*)?/i);
             if(!match) return;
-
             var xhsUrl = match[0];
             if(!/^https?:\/\//i.test(xhsUrl)) xhsUrl = 'https://' + xhsUrl;
-
             fetchXhsHtml(xhsUrl).then(function(html){
               var state = parseXhsState(html);
               var note = extractNote(state);
@@ -217,80 +210,63 @@ var _roche = null;
 
 function createPanel(container, roche){
   rocheStorage = roche.storage;
-
-  // Check initial state
   rocheStorage.get(STORE_KEY_ON).then(function(isOn){
     rocheStorage.get(STORE_KEY_CF).then(function(cfUrl){
-      renderPanel(container, isOn || false, cfUrl || '');
+      var h = '';
+      h += '<div style="display:flex;flex-direction:column;justify-content:space-between;min-height:200px;padding:16px;color:#e0e0e0;font-size:14px">';
+      h += '<div>';
+      h += '<div style="font-size:20px;font-weight:700;color:#ff2442;margin-bottom:16px">\ud83d\udcd5 XHS \u94fe\u63a5\u5361\u7247</div>';
+      h += '<div style="margin-bottom:12px">';
+      h += '<label style="display:flex;align-items:center;gap:10px;cursor:pointer">';
+      h += '<input type="checkbox" id="xhs-toggle"' + (isOn ? ' checked' : '') + ' style="width:18px;height:18px">';
+      h += '<span>\u542f\u7528\u81ea\u52a8\u76d1\u542c</span>';
+      h += '</label></div>';
+      h += '<div style="font-size:12px;color:#888;margin-bottom:16px">\u53d1\u5c0f\u7ea2\u4e66\u94fe\u63a5\u81ea\u52a8\u8f6c\u5361\u7247\u3002APK\u5f00\u7bb1\u5373\u7528\u3002</div>';
+      h += '<div style="margin-bottom:12px">';
+      h += '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px">\u81ea\u5b9a\u4e49CF Worker\uff08\u53ef\u9009\uff09</label>';
+      h += '<input id="xhs-cf-input" type="text" value="' + cfUrl + '" placeholder="https://\u4f60\u7684worker.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #444;border-radius:8px;background:#222;color:#e0e0e0;font-size:13px;outline:none;box-sizing:border-box">';
+      h += '</div>';
+      h += '<button id="xhs-save-btn" style="width:100%;padding:9px;background:#ff2442;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">\u4fdd\u5b58\u8bbe\u7f6e</button>';
+      h += '</div>';
+      // Big exit button at bottom - black oval
+      h += '<button id="xhs-exit-btn" style="display:block;width:100%;margin-top:24px;padding:14px 0;background:#222;color:#e0e0e0;border:2px solid #555;border-radius:100px;cursor:pointer;font-size:16px;text-align:center;font-weight:600">\u9000\u51fa</button>';
+      h += '</div>';
+      container.innerHTML = h;
+
+      container.querySelector('#xhs-exit-btn').onclick = function(){ if(_roche) _roche.ui.closeApp(); };
+      container.querySelector('#xhs-save-btn').onclick = function(){
+        var o = container.querySelector('#xhs-toggle').checked;
+        var c = container.querySelector('#xhs-cf-input').value.trim();
+        rocheStorage.set(STORE_KEY_ON, o);
+        rocheStorage.set(STORE_KEY_CF, c);
+      };
+      container.querySelector('#xhs-toggle').onchange = function(){
+        var o = this.checked;
+        rocheStorage.set(STORE_KEY_ON, o);
+        if(o && !_pollTimer){ _pollTimer = setInterval(pollMessages, POLL_MS); setTimeout(pollMessages, 1000); }
+        else if(!o && _pollTimer){ clearInterval(_pollTimer); _pollTimer = null; }
+      };
+      if(isOn && !_pollTimer){ _pollTimer = setInterval(pollMessages, POLL_MS); setTimeout(pollMessages, 1000); }
     });
   });
 }
 
-function renderPanel(container, isOn, cfUrl){
-  container.innerHTML = '' +
-    '<div style="padding:16px;color:#e0e0e0;font-size:14px">' +
-      '<div style="font-size:20px;font-weight:700;color:#ff2442;margin-bottom:16px">📕 XHS 链接卡片</div>' +
-      '<div style="margin-bottom:12px">' +
-        '<label style="display:flex;align-items:center;gap:10px;cursor:pointer">' +
-          '<input type="checkbox" id="xhs-toggle"' + (isOn ? ' checked' : '') + ' style="width:18px;height:18px">' +
-          '<span>启用自动监听</span>' +
-        '</label>' +
-      '</div>' +
-      '<div style="font-size:12px;color:#888;margin-bottom:16px">' +
-        '开启后，发送小红书链接会自动转换成卡片。' +
-        'APK 开箱即用，浏览器端需要 Cloudflare Worker。' +
-      '</div>' +
-      '<div style="margin-bottom:12px">' +
-        '<label style="display:block;font-size:12px;color:#999;margin-bottom:4px">自定义 CF Worker（可选）</label>' +
-        '<input id="xhs-cf-input" type="text" value="' + cfUrl + '" placeholder="https://你的worker.workers.dev" style="width:100%;padding:8px 12px;border:1px solid #444;border-radius:8px;background:#222;color:#e0e0e0;font-size:13px;outline:none;box-sizing:border-box">' +
-      '</div>' +
-      '<button id="xhs-save-btn" style="width:100%;padding:9px;background:#ff2442;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">保存设置</button>' +
-    '</div>';
-
-  container.querySelector('#xhs-back-btn').onclick = function(){ if(_roche) _roche.ui.closeApp(); };
-    container.querySelector('#xhs-save-btn').onclick = function(){
-    var isOn2 = container.querySelector('#xhs-toggle').checked;
-    var cf2 = container.querySelector('#xhs-cf-input').value.trim();
-    rocheStorage.set(STORE_KEY_ON, isOn2);
-    rocheStorage.set(STORE_KEY_CF, cf2);
-  };
-
-  container.querySelector('#xhs-toggle').onchange = function(){
-    var isOn2 = this.checked;
-    rocheStorage.set(STORE_KEY_ON, isOn2);
-    if(isOn2 && !_pollTimer){
-      _pollTimer = setInterval(pollMessages, POLL_MS);
-      setTimeout(pollMessages, 1000);
-    } else if(!isOn2 && _pollTimer){
-      clearInterval(_pollTimer);
-      _pollTimer = null;
-    }
-  };
-
-  // Start polling if enabled
-  if(isOn && !_pollTimer){
-    _pollTimer = setInterval(pollMessages, POLL_MS);
-    setTimeout(pollMessages, 1000);
-  }
-}
-
 window.RochePlugin.register({
   id: 'xhs-link-card',
-  name: 'XHS 链接卡片',
+  name: 'XHS \u94fe\u63a5\u5361\u7247',
   version: '1.0.0',
   apps: [{
     id: 'xhs-link-card-main',
-    name: 'XHS 链接卡片',
-    icon: 'link',
+    name: 'XHS \u94fe\u63a5\u5361\u7247',
+    icon: 'extension',
     async mount(container, roche){
+      rocheStorage = roche.storage; _roche = roche;
       createPanel(container, roche);
     },
     async unmount(container){
-      // Keep polling alive
+      // keep polling
     }
   }]
 });
 
 })();
-
-
