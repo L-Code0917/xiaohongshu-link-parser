@@ -135,24 +135,26 @@ function extractTags(note){
 }
 
 function formatCard(note, comments, xhsUrl){
-  var title = note.title || '小红书笔记';
-  var author = (note.user && (note.user.nick_name || note.user.nickname)) || '';
-  var desc = note.desc || '';
+  var title = note.title || "小红书笔记";
+  var author = (note.user && (note.user.nick_name || note.user.nickname)) || "";
+  var imgs = note.image_list || note.images || note.pics || [];
+  var coverUrl = imgs.length > 0 ? (typeof imgs[0] === "string" ? imgs[0] : (imgs[0].url || imgs[0].url_default || "")) : "";
+  var likes = (note.interact_info && note.interact_info.liked_count) || "";
+  var desc = note.desc || "";
   var tags = extractTags(note);
-  var tagStr = tags.join('\u3001');
-  var cmtText = '';
+  var tagStr = tags.join("、");
+  var cmtText = "";
   if(comments && comments.comments && comments.comments.length > 0){
-    cmtText = '\n\u70ed\u95e8\u8bc4\u8bba\uff1a\n';
-    var max = Math.min(comments.comments.length, 5);
+    cmtText = "\n热门评论：\n";
+    var max = Math.min(comments.comments.length, 3);
     for(var i=0;i<max;i++){
       var c = comments.comments[i];
-      var un = (c.user && (c.user.nickname || c.user.nick_name)) || '\u7528\u6237';
-      var ct = c.content || '';
-      cmtText += un + '\uff1a' + ct + '\n';
+      var un = (c.user && (c.user.nickname || c.user.nick_name)) || "用户";
+      var ct = c.content || "";
+      cmtText += un + "：" + ct + "\n";
     }
   }
-  var result = '\u5206\u4eab\u4e86\u4e00\u4e2a\u5c0f\u7ea2\u4e66\u7b14\u8bb0\uff1a\n#' + title + '\n' + desc + '\n\u6807\u7b7e\uff1a' + tagStr + '\n' + cmtText;
-    return result;
+  return "分享了一个小红书笔记：\n封面：" + coverUrl + "\n标题：" + title + "\n作者：" + author + "\n♥️ " + likes + "\n" + desc + "\n标签：" + tagStr + "\n" + cmtText;
 }
 
 function injectTextMessage(originalMsg, text){
