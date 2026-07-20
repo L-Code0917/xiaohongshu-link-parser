@@ -57,7 +57,7 @@ function createCardEl(data, linkUrl) {
   div.innerHTML = [
     '<div class="xhs-live-card-head"><span class="xhs-live-card-mark">RED</span> 小红书</div>',
     '<div class="xhs-live-card-body">',
-    imgSrc ? '<div class="xhs-live-card-cover"><img src="'+imgSrc+'" onerror="this.style.display=\'none\'"></div>' : ''
+    imgSrc ? '<div class="xhs-live-card-cover"><img src="'+imgSrc+'" onerror="this.style.display=\'none\'"></div>' : '',
     '<div class="xhs-live-card-info">',
     '<div class="xhs-live-card-title">' + (data.title || '小红书帖子') + '</div>',
     (data.author || data.user_name || '') ? '<div class="xhs-live-card-author">' + (data.author || data.user_name || '') + '</div>' : '',
@@ -170,5 +170,3 @@ window.RochePlugin.register({
 })();
 
 console.log('[XHS Live] Loaded v2.0.0')
-// flush
-
