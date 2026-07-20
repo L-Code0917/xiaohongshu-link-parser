@@ -283,7 +283,7 @@ window.RochePlugin.register({
     name: 'XHS 链接卡片',
     icon: 'link',
     async mount(container, roche){
-      if(!_panelCreated) createPanel(container, roche);
+      createPanel(container, roche);
     },
     async unmount(container){
       // Keep polling alive
