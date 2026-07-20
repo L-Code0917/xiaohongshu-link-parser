@@ -170,3 +170,5 @@ window.RochePlugin.register({
 })();
 
 console.log('[XHS Live] Loaded v2.0.0')
+// flush
+
