@@ -212,7 +212,7 @@ function pollMessages(){
   });
 }
 
-var rocheStorage = null;
+var rocheStorage = null; var _roche = null;
 var _panelCreated = false;
 
 function createPanel(container, roche){
@@ -248,7 +248,8 @@ function renderPanel(container, isOn, cfUrl){
       '<button id="xhs-save-btn" style="width:100%;padding:9px;background:#ff2442;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px">保存设置</button>' +
     '</div>';
 
-  container.querySelector('#xhs-save-btn').onclick = function(){
+  container.querySelector('#xhs-back-btn').onclick = function(){ if(_roche) _roche.ui.closeApp(); };
+    container.querySelector('#xhs-save-btn').onclick = function(){
     var isOn2 = container.querySelector('#xhs-toggle').checked;
     var cf2 = container.querySelector('#xhs-cf-input').value.trim();
     rocheStorage.set(STORE_KEY_ON, isOn2);
