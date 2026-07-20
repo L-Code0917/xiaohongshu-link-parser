@@ -119,3 +119,89 @@ window.RochePlugin.register({id:"xhs-live-parser",name:"XHS Link Parser",version
   document.getElementById("xsp").onclick=function(){sp();if(A){try{A.close()}catch(e){}A=null}r.ui.toast("\u5df2\u505c\u6b62");document.getElementById("xss").innerHTML="<span style='width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0'></span><span>\u5df2\u505c\u6b62</span>"};
   if(k){setTimeout(function(){ka();st(ep,k)},1000)}
 },async unmount(c){c.replaceChildren()}}]})})()
+(() => {
+(function() {
+var K="xhs_key";
+var E="xhs_ep";
+var M=false;
+var O=null;
+var A=null;
+var RU=new RegExp("https?://[^\\s]*(?:xiaohongshu\\.com|xhslink\\.com)[^\\s]*","gi");
+var RN=new RegExp("xiaohongshu\\.com/(?:explore|discovery/item)/([a-f0-9]+)","i");
+function ka(){try{var c=new(window.AudioContext||window.webkitAudioContext)();var b=c.createBuffer(1,c.sampleRate,c.sampleRate);var s=c.createBufferSource();s.buffer=b;s.loop=true;s.connect(c.destination);s.start();A=c;setInterval(function(){if(c.state==="suspended")c.resume()},3e4)}catch(e){}}
+function nu(u){var m=u.match(RN);return m?m[1]:null}
+function bb(n){var e=n.nodeType===1?n:n.parentElement;while(e&&e!==document.body){if(e.matches&&(e.matches("[class*=chat-bubble]")||e.matches("[class*=message]")))return e;e=e.parentElement}return null}
+function ap(ep,k,ni){return fetch("https://api.getoneapi.com/api/xiaohongshu/"+ep,{method:"POST",headers:{Authorization:"Bearer "+k,"Content-Type":"application/json"},body:JSON.stringify({noteId:ni})}).then(function(r){return r.json()}).catch(function(){return null})}
+function sc(d,b){
+var dv=document.createElement("div");
+dv.style.border="1px solid #333";
+dv.style.borderRadius="12px";
+dv.style.overflow="hidden";
+dv.style.margin="8px 0";
+dv.style.background="#1a1a2e";
+dv.style.color="#e0e0e0";
+dv.style.fontSize="13px";
+var h=document.createElement("div");
+h.style.cssText="padding:10px 12px;border-bottom:1px solid #333;font-weight:600;color:#ff2442;font-size:12px;display:flex;align-items:center;gap:6px";
+var mk=document.createElement("span");
+mk.style.cssText="background:#ff2442;color:#fff;padding:2px 6px;border-radius:3px;font-size:10px";
+mk.textContent="RED";
+h.appendChild(mk);
+h.appendChild(document.createTextNode(" 小红书"));
+dv.appendChild(h);
+var bd=document.createElement("div");
+bd.style.padding="12px";
+var tl=document.createElement("b");
+tl.textContent=d.title||"小红书帖子";
+bd.appendChild(tl);
+if(d.author||d.user_name){var au=document.createElement("div");au.style.cssText="font-size:12px;color:#999;margin-top:4px";au.textContent=d.author||d.user_name||"";bd.appendChild(au)}
+if(d.desc||d.description||d.content){var de=document.createElement("div");de.style.cssText="font-size:12px;color:#888;margin-top:4px";de.textContent=d.desc||d.description||d.content||"";bd.appendChild(de)}
+var imgs=d.images||d.image_list||d.pics||[];
+if(imgs.length>0){var src=typeof imgs[0]==="string"?imgs[0]:imgs[0].url||"";if(src){var im=document.createElement("img");im.src=src;im.style.cssText="max-width:100%;border-radius:8px;margin-top:8px";bd.appendChild(im)}}
+dv.appendChild(bd);
+b.parentNode.insertBefore(dv,b.nextSibling);
+}
+function st(ep,k){
+if(O)O.disconnect();
+M=true;
+O=new MutationObserver(function(m){
+m.forEach(function(mu){
+if(mu.type!=="childList"||!mu.addedNodes.length)return;
+for(var i=0;i<mu.addedNodes.length;i++){
+var n=mu.addedNodes[i];if(n.nodeType!==1&&n.nodeType!==3)continue;
+var tx=n.textContent||"";var ls=tx.match(RU);if(!ls||!ls.length)continue;
+var b=bb(n);if(!b||b.dataset.x)continue;b.dataset.x="1";
+var id=nu(ls[0]);if(!id)continue;
+ap(ep,k,id).then(function(d){if(d&&d.code===200&&d.data)sc(d.data,b)})
+}
+})
+});
+O.observe(document.body,{childList:true,subtree:true})
+}
+function sp(){
+if(O){O.disconnect();O=null}M=false
+}
+})();
+window.RochePlugin.register({
+id:"xhs-live-parser",
+name:"XHS Link Parser",
+version:"2.2.0",
+apps:[{
+id:"xhs-live-parser-main",
+name:"实时解析",
+icon:"link",
+async mount(c,r){
+var k=await r.storage.get(K)||"";
+var ep=await r.storage.get(E)||"fetch_video_detail";
+c.innerHTML="<button id='xcb' style='padding:8px 16px;background:#333;color:#e0e0e0;border:1px solid #444;border-radius:8px;cursor:pointer;font-size:13px;margin:8px'>&#x2190; 返回</button><div id='xss' style='display:flex;align-items:center;gap:8px;padding:12px;border-radius:8px;background:#222;margin:8px'><span style='width:10px;height:10px;border-radius:50%;background:"+(M?"#4ecca3":"#555")+";flex-shrink:0'></span><span>"+(M?"监控中":"未启动")+"</span></div><input id='xk' type='password' value='"+k+"' placeholder='API Key' style='display:block;width:calc(100% - 16px);margin:8px;padding:10px;border:1px solid #333;border-radius:8px;background:#222;color:#e0e0e0;outline:none;font-size:14px'><input id='xe' value='"+ep+"' placeholder='Endpoint (默认 fetch_video_detail)' style='display:block;width:calc(100% - 16px);margin:8px;padding:10px;border:1px solid #333;border-radius:8px;background:#222;color:#e0e0e0;outline:none;font-size:14px'><div style='display:flex;gap:8px;margin:8px'><button id='xsv' style='flex:1;padding:10px;background:#ff2442;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer'>保存并启动</button><button id='xsp' style='flex:1;padding:10px;background:#333;color:#e0e0e0;border:1px solid #444;border-radius:8px;font-size:14px;cursor:pointer'>停止监控</button></div>";
+document.getElementById("xcb").onclick=function(){r.ui.closeApp()};
+document.getElementById("xsv").onclick=async function(){var k2=document.getElementById("xk").value.trim();var e2=document.getElementById("xe").value.trim()||"fetch_video_detail";if(!k2){r.ui.toast("请填写API Key");return}await r.storage.set(K,k2);await r.storage.set(E,e2);ka();st(e2,k2);r.ui.toast("已启动")};
+document.getElementById("xsp").onclick=function(){sp();if(A){try{A.close()}catch(e){}A=null}r.ui.toast("已停止")};
+if(k){setTimeout(function(){ka();st(ep,k)},1000)}
+},
+async unmount(c){
+c.replaceChildren()
+}
+}]
+})
+})()
