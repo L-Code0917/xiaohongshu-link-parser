@@ -4,7 +4,8 @@
   "version": "2.1.0",
   "description": "Auto parse Xiaohongshu links in chat - paste a link, get a RED card with images, text and tags",
   "author": "",
-  "entry": "https://raw.githubusercontent.com/L-Code0917/xiaohongshu-link-parser/main/plugin-v2.js",
+  "entry": "https://raw.githubusercontent.com/L-Code0917/xiaohongshu-link-parser/main/plugin.js",
   "hash": "",
   "permissions": ["ai:chat", "storage", "ui"]
 }
+
