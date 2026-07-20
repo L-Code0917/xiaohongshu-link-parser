@@ -1,11 +1,10 @@
 ﻿{
-  "id": "xiaohongshu-link-parser",
-  "name": "XHS Link Parser",
-  "version": "2.1.0",
-  "description": "Auto parse Xiaohongshu links in chat - paste a link, get a RED card with images, text and tags",
+  "id": "xhs-link-card",
+  "name": "XHS 链接卡片",
+  "version": "1.0.0",
+  "description": "发送小红书链接自动转换成卡片——像微信链接预览一样，标题+简介+缩略图+评论，不发单独图片，AI 可读。",
   "author": "",
   "entry": "https://raw.githubusercontent.com/L-Code0917/xiaohongshu-link-parser/main/plugin.js",
   "hash": "",
-  "permissions": ["ai:chat", "storage", "ui"]
+  "permissions": ["storage", "ui", "conversation:read", "memory:read"]
 }
-

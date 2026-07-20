@@ -1,0 +1,19 @@
+﻿{
+  "version": 1,
+  "categories": [
+    {
+      "name": "小红书链接卡片",
+      "scope": "global",
+      "entries": [
+        {
+          "id": "xhs-card-entry",
+          "categoryId": "xhs-card",
+          "name": "XHS 链接卡片",
+          "regex": "([^\\n]*?分享了一个小红书笔记：[\\s\\S]*?)#([^\\n]+)\\s+([\\s\\S]*?)\\s+标签：([^\\n]*)\\s+热门评论：\\s*([\\s\\S]*)",
+          "html": "<div style=\"display:none;\">$1</div><style>@import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css');.xhs-wrap{display:block !important;width:85vw !important;max-width:380px !important;min-width:260px;box-sizing:border-box;margin:8px 0;font-family:\"LXGW WenKai Lite\",-apple-system,sans-serif}.xhs-box{background:#fff;border:1px solid rgba(0,0,0,0.05);border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.04);overflow:hidden}.xhs-top{background:linear-gradient(135deg,#fff0f2 0%,#ffe4e8 100%);padding:30px 16px;text-align:center}.xhs-top::before{content:'\\201C';position:absolute;top:10px;left:20px;font-size:50px;color:rgba(255,36,66,0.1);font-family:Georgia,serif;line-height:1}.xhs-ctit{font-size:20px;font-weight:bold;color:#333;line-height:1.4;position:relative;z-index:2}.xhs-body{padding:14px 16px}.xhs-txt{font-size:14px;color:#444;line-height:1.6;max-height:140px;overflow-y:auto;scrollbar-width:none}.xhs-txt::-webkit-scrollbar{display:none}pre.xhs-pre{margin:0;white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:14px}.xhs-tags{margin:10px 0;display:flex;flex-wrap:wrap;gap:6px}.xhs-tag{font-size:12px;color:#ff2442;background:rgba(255,36,66,0.08);padding:3px 8px;border-radius:10px}.xhs-cmt{margin-top:12px;padding:10px;background:#f9f9f9;border-radius:8px;border-left:3px solid #ff2442;max-height:120px;overflow:hidden;position:relative}.xhs-cmt::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#f9f9f9)}.xhs-ch{font-size:11px;font-weight:bold;color:#ff2442;margin-bottom:4px}pre.xhs-cpre{margin:0;white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:12px;color:#555}</style><div class=\"xhs-wrap\"><div class=\"xhs-box\"><div class=\"xhs-top\"><div class=\"xhs-ctit\">$2</div></div><div class=\"xhs-body\"><div class=\"xhs-txt\"><pre class=\"xhs-pre\">$3</pre></div><div class=\"xhs-tags\"><div class=\"xhs-tag\">$4</div></div><div class=\"xhs-cmt\"><div class=\"xhs-ch\">热门评论</div><pre class=\"xhs-cpre\">$5</pre></div></div></div></div>",
+          "timestamp": Date.now()
+        }
+      ]
+    }
+  ]
+}
