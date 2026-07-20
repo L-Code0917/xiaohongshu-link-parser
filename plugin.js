@@ -152,8 +152,7 @@ function formatCard(note, comments, xhsUrl){
     }
   }
   var result = '\u5206\u4eab\u4e86\u4e00\u4e2a\u5c0f\u7ea2\u4e66\u7b14\u8bb0\uff1a\n#' + title + '\n' + desc + '\n\u6807\u7b7e\uff1a' + tagStr + '\n' + cmtText;
-  if(author) result = '\u4f5c\u8005\uff1a' + author + '\n' + result;
-  return result;
+    return result;
 }
 
 function injectTextMessage(originalMsg, text){
